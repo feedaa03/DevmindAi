@@ -1,68 +1,77 @@
-# DevMind AI — تطوير محلي ونشر تجريبي عام
+# DevMind AI — Local development and public experimental deployment
 
-المشروع الآن يتكوّن من واجهة ثابتة (Netlify) وواجهة API بـ FastAPI (Render). محلل Python الحالي حقيقي لكنه أولي وقائم على قواعد ثابتة؛ لا توجد بعد نماذج LLM أو RAG أو إنشاء Pull Requests حقيقية.
+The project now consists of a static interface (Netlify) and an API interface with FastAPI (Render). The current Python analyzer is real but preliminary and based on static rules; there are no real LLM or RAG models or actual Pull Request creation yet.
 
-## تشغيل محلي على macOS
+## Local running on macOS
 
-افتح Terminal في مجلد المشروع. شغّل الواجهة في نافذة أولى:
+Open Terminal in the project folder. Run the interface in the first window:
 
 ```bash
+
 python3 -m http.server 5500 --directory frontend
+
 ```
 
-في نافذة ثانية:
+In a second window:
 
 ```bash
+
 cd backend
+
 python3 -m venv .venv
+
 source .venv/bin/activate
+
 python -m pip install -r requirements.txt
+
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
 ```
 
-افتح http://127.0.0.1:5500. إعداد الواجهة المحلي موجود في `frontend/config.js`.
+Open http://127.0.0.1:5500. The local interface configuration is located in `frontend/config.js`.
 
-## النشر العام
+## General publication
 
-### 1. انشر الـ Backend على Render
+### 1. Publish the Backend on Render
 
-1. ادفع مجلد المشروع إلى مستودع GitHub.
-2. في Render اختر New > Blueprint ثم اختر المستودع الذي يحتوي على `render.yaml`.
-3. أضف قيمة `ALLOWED_ORIGINS` بعد إنشاء موقع Netlify، مثل `https://your-site-name.netlify.app` (بدون شرطة مائلة في النهاية).
-4. بعد النشر، اختبر `https://YOUR-API.onrender.com/health`.
+1. Push the project folder to the GitHub repository.
 
-### 2. اربط الواجهة بعنوان API السحابي
+2. In Render, choose New > Blueprint, then choose the repository that contains `render.yaml`.
 
-عدّل `frontend/config.js` ليحتوي على رابط API الحقيقي:
+3. Add the value of `ALLOWED_ORIGINS` after creating a Netlify site, such as `https://your-site-name.netlify.app` (without a forward slash at the end).
+
+4. After publishing, test `https://YOUR-API.onrender.com/health`.
+
+### 2. Connect the interface to the cloud API endpoint
+
+Modify `frontend/config.js` to contain the real API link:
 
 ```js
+
 window.DEVMIND_CONFIG = {
-  API_BASE_URL: 'https://YOUR-API.onrender.com'
+
+API_BASE_URL: 'https://YOUR-API.onrender.com'
+
 };
+
 ```
 
-لا تضع مفاتيح سرية في هذا الملف؛ فهو يُرسل إلى كل زائر.
+Do not put any secret keys in this file; it is sent to every visitor.
 
-### 3. انشر الواجهة على Netlify
+### 3. Publish the interface on Netlify
 
-استورد مستودع GitHub في Netlify. إعداد `netlify.toml` يحدد `frontend` كمجلد النشر. بعد أي تعديل ورفعه إلى GitHub، ستعيد Netlify بناء الموقع تلقائيًا إذا كان الربط بالمستودع مفعّلًا.
+Import the GitHub repository in Netlify. Setting up `netlify.toml` specifies `frontend` as the publishing directory. After any modifications and pushing it to GitHub, Netlify will automatically rebuild the site if the repository linking is enabled.
 
-## ما يعمل فعلًا الآن
+## What is actually working now
 
-- `GET /health` لفحص الخدمة.
-- `POST /analyze` لاستقبال ملف `.py` بحد أقصى 200 KB وتحليل قواعد أولية مثل `eval` و`except:` العاري والدوال الطويلة والمسافات النهائية.
-- الواجهة تستدعي API وتعرض نتائج التحليل الفعلية.
-- إعداد عنوان API منفصل في `frontend/config.js`.
+- `GET /health` to check the service.
 
-## ما زال تجريبيًا أو غير مكتمل
+- `POST /analyze` to receive a `.py` file with a maximum of 200 KB and analyze basic rules such as bare `eval` and `except:`, long functions and final newlines.
 
-- أرقام لوحة التحكم وبعض بطاقات الإصلاح/الاختبارات في التصميم بيانات توضيحية، وليست إحصائيات حيّة. لا تعتمد عليها كقياسات فعلية.
-- إنشاء GitHub Pull Request وCI غير مفعّل.
-- لا يوجد RAG أو LLM مدمج حتى الآن.
+- The interface calls the API and displays the actual analysis results.
 
-## قبل مشاركة الرابط مع الجمهور
+- Set up a separate API address in `frontend/config.js`.
 
-- لا ترفع ملفات سرية أو مشاريع خاصة إلى النسخة العامة.
-- أضف تحديد معدل الطلبات (rate limiting) ومراقبة الاستخدام قبل توسيع الجمهور.
-- ضع حدًا لحجم الطلبات وأضف تحققًا من نوع الملفات. لا تشغّل كود المستخدمين على الخادم.
-- تذكّر أن خدمة الاستضافة المجانية قد تدخل في وضع السكون أو تفرض حدود استخدام.
+## Still experimental or incomplete
+
+- Control panel numbers and some repair/test cards in the design are illustrative data, not live statistics. Do not rely on them as actual measurements.
